@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script>
+    // Fecha automaticamente as mensagens após 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+
+
+<div class="container py-4">
+    <h2 class="mb-4">Lojas</h2>
+    <!-- Botão para adicionar nova loja -->
+    <button class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#addStoreModal">
+        + Adicionar Loja
+    </button>
+
+    <!-- Grid de Lojas -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for store in stores %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ store.name }}</h5>
+                    <a href="{{ url_for('store_tvs', store_id=store._id) }}" class="btn btn-primary mt-2">
+                        Gerenciar TVs
+                    </a>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" 
+                                data-bs-target="#editStoreModal{{ store._id }}">
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+                                data-bs-target="#deleteStoreModal{{ store._id }}">
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Editar Loja -->
+        <div class="modal fade" id="editStoreModal{{ store._id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('edit_store', store_id=store._id) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar Loja</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nome da Loja</label>
+                                <input type="text" name="name" class="form-control" value="{{ store.name }}" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Excluir Loja -->
+        <div class="modal fade" id="deleteStoreModal{{ store._id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('delete_store', store_id=store._id) }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar Exclusão</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Tem certeza que deseja excluir a loja "{{ store.name }}"?</p>
+                            <p class="text-danger">Esta ação não pode ser desfeita!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Excluir</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modal Adicionar Loja -->
+    <div class="modal fade" id="addStoreModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('add_store') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nova Loja</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nome da Loja</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclua o JavaScript do Bootstrap no final do body -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

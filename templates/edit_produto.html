@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5>Editar Produto</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('edit_produto', layout_id=layout_id, index=index) }}">
+                <input type="hidden" name="tv_id" value="{{ tv_id }}">
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nome do Produto</label>
+                        <input type="text" name="nome" class="form-control" value="{{ produto.nome }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Preço</label>
+                        <input type="text" name="preco" class="form-control" value="{{ "%.2f"|format(produto.preco)|replace('.', ',') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label d-block">Cor do Fundo</label>
+                        <input type="color" name="cor_fundo" class="form-control form-control-color" value="{{ produto.cor_fundo }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label d-block">Cor da Fonte</label>
+                        <input type="color" name="cor_fonte" class="form-control form-control-color" value="{{ produto.cor_fonte }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tamanho (px)</label>
+                        <input type="number" name="tamanho" class="form-control" value="{{ produto.tamanho }}" min="10">
+                    </div>
+                    <div class="col-md-2 pt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="sem_fundo" id="semFundo" {% if produto.sem_fundo %}checked{% endif %}>
+                            <label class="form-check-label" for="semFundo">Sem Fundo</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="{{ url_for('dashboard', tv_id=tv_id) }}" class="btn btn-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control-color {
+        width: 50px !important;
+        height: 50px !important;
+        padding: 2px;
+        cursor: pointer;
+    }
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+{% endblock %}

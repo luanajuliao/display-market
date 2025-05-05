@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Display Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5 !important;
+        }
+        .product-card {
+            transition: all 0.3s;
+            border: 1px solid #dee2e6;
+        }
+        .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .form-control {
+            border: 2px solid #6c757d;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .form-control:focus {
+            border-color: #495057;
+            box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.25);
+        }
+        .form-control-color {
+            width: 50px !important;
+            height: 50px !important;
+            padding: 2px;
+            border: 2px solid #6c757d !important;
+            cursor: pointer;
+        }
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #6c757d;
+        }
+        .form-check-input:checked {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .card-body {
+            background-color: #f8f9fa;
+        }
+        .form-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .list-group-item {
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;  /* Itens em coluna */
+            margin-bottom: 10px;  /* Espaço entre itens */
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        .btn-navigation {
+            min-width: 120px;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+        .btn-navigation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-badge {
+            transition: all 0.3s;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .product-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .layout-actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="text-center mb-4 text-dark">Display Market - Dashboard</h1>
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Sair</a>
+                </div>
+                <!-- Adicione este código logo abaixo do botão Sair -->
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="{{ url_for('store_tvs', store_id=store_id) }}" class="btn btn-secondary me-2">
+                        Voltar para TVs
+                    </a>
+                    <a href="{{ url_for('tv') }}?tv_id={{ tv_id }}"  target="_blank" class="btn btn-success me-2">
+                        Ver TV
+                    </a>
+                </div>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Adicionar Novo Layout</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('upload', tv_id=tv_id) }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Layout*</label>
+                        <input type="text" name="layout_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a imagem de fundo*</label>
+                        <input type="file" name="image" class="form-control" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+
+        {% for layout in layouts %}
+        <div class="card mb-4 shadow-sm product-card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                <div>
+                    <h5 class="mb-0 fw-bold">{{ layout.name }}</h5>
+                    <small class="text-muted">ID: {{ layout._id }}</small>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        Ações
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('rename_layout', layout_id=layout._id, tv_id=tv_id) }}">
+                                Renomear
+                            </a>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ url_for('delete_layout', layout_id=layout._id) }}" 
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este layout?')">
+                                <input type="hidden" name="tv_id" value="{{ tv_id }}">
+                                <button type="submit" class="dropdown-item text-danger">Excluir</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if layout.image %}
+                        <div class="border rounded p-2 bg-white">
+                            <img src="{{ url_for('static', filename='uploads/' + layout.image) }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 300px; display: block; margin: 0 auto;">
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">Nenhuma imagem cadastrada</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-section mb-4">
+                            <h5 class="fw-bold mb-3 text-dark">Adicionar Produto</h5>
+                            
+                            <form method="POST" action="{{ url_for('add_produto', layout_id=layout._id) }}" class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nome do Produto</label>
+                                    <input type="text" name="nome" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Preço</label>
+                                    <input type="text" name="preco" class="form-control" placeholder="Ex: 29,90" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label d-block">Cor do Fundo</label>
+                                    <input type="color" name="cor_fundo" class="form-control form-control-color" value="#FFFFFF">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label d-block">Cor da Fonte</label>
+                                    <input type="color" name="cor_fonte" class="form-control form-control-color" value="#000000">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Tamanho (px)</label>
+                                    <input type="number" name="tamanho" class="form-control" value="32" min="10">
+                                </div>
+                                <div class="col-md-2 pt-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="sem_fundo" id="semFundo{{ loop.index }}">
+                                        <label class="form-check-label fw-medium" for="semFundo{{ loop.index }}">Sem Fundo</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary w-100">Adicionar Produto</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <h5 class="mt-4 fw-bold text-dark">Produtos Cadastrados</h5>
+                        {% if layout.products %}
+                        <div class="list-group">
+                            {% for produto in layout.products %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center bg-white">
+                        <div>
+                            <span class="badge me-2 p-2" style="background-color: {{ produto.cor_fundo }}; color: {{ produto.cor_fonte }};">
+                                {{ produto.nome }} - R$ {{ "%.2f"|format(produto.preco) }}
+                            </span>
+                            <small class="text-muted">{{ produto.tamanho }}px</small>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('edit_produto', layout_id=layout._id, index=loop.index0, tv_id=tv_id) }}" 
+                            class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                            <form method="POST" action="{{ url_for('delete_produto', layout_id=layout._id, index=loop.index0) }}" class="d-inline">
+                                <input type="hidden" name="tv_id" value="{{ tv_id }}">
+                                <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                    {% else %}
+                    <div class="alert alert-info">Nenhum produto cadastrado</div>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%else%}
+        <div class="alert alert-info">Nenhum layout cadastrado</div>
+        {% endfor %}
+
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

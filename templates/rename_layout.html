@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5>Renomear Layout</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('rename_layout', layout_id=layout_id) }}">
+                <input type="hidden" name="tv_id" value="{{ tv_id }}">
+                <div class="mb-3">
+                    <label class="form-label">Novo Nome do Layout</label>
+                    <input type="text" name="nome_layout" class="form-control" value="{{ current_name }}" required>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary me-2">Salvar</button>
+                    <a href="{{ url_for('dashboard', tv_id=tv_id) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

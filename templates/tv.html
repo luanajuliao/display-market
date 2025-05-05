@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV {{ tv_name }}</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .tv-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .tv-image {
+            width: 100%;
+            height: 100%;
+            object-fit: {% if preview %}contain{% else %}cover{% endif %};
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            object-fit: contain;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .products-container {
+        position: absolute;
+        top: 10%;
+        width: auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-content: flex-start;
+        padding: 20px;
+        gap: 15px; /* Espaço entre os produtos */
+        
+    }
+        .product-item {
+            margin: 0; /* Removemos a margem fixa */
+            padding: 10px 15px;
+            font-weight: bold;
+            text-align: left;
+            border: none; /* Removemos a borda padrão */
+        }
+        
+        {% if preview %}
+        .slide-container {
+            height: 400px;
+        }
+        {% endif %}
+
+        {% if preview %}
+        .tv-container {
+            height: 400px;
+        }
+        {% endif %}
+
+    </style>
+</head>
+<body>
+    <div class="tv-container">
+        {% if layouts %}
+            <img id="tvImage" class="tv-image" 
+                 src="{{ url_for('static', filename='uploads/' + layouts[0].image) }}">
+            
+            <div id="productsContainer" class="products-container">
+                {% for produto in layouts[0].products %}
+                <div class="product-item"
+                     style="color: {{ produto.cor_fonte }};
+                            background: {% if not produto.sem_fundo %}{{ produto.cor_fundo }}{% else %}transparent{% endif %};
+                            font-size: {{ produto.tamanho }}px;
+                            border: {% if produto.sem_fundo %} /*2px solid */{{ produto.cor_fonte }}{% else %}none{% endif %};">
+                    {{ produto.nome }} - R$ {{ "%.2f"|format(produto.preco) }}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="color: white; text-align: center; padding-top: 50px;">
+                <h1>Nenhum layout configurado</h1>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const layouts = JSON.parse('{{ layouts|tojson|safe }}');
+            if (!layouts || layouts.length === 0) return;
+            
+            const tvImage = document.getElementById('tvImage');
+            const productsContainer = document.getElementById('productsContainer');
+            let currentIndex = {{ current_layout_index }};
+            const rotationTime = 10000; // 10 segundos
+            
+            function rotateLayout() {
+                // Calcula o próximo índice
+                currentIndex = (currentIndex + 1) % layouts.length;
+                const nextLayout = layouts[currentIndex];
+                
+                // Atualiza a imagem
+                tvImage.src = `/static/uploads/${nextLayout.image}`;
+                
+                // Atualiza os produtos
+                productsContainer.innerHTML = nextLayout.products.map(produto => `
+                     <div class="product-item"
+                        style="color: ${produto.cor_fonte};
+                                background: ${produto.sem_fundo ? 'transparent' : produto.cor_fundo};
+                                font-size: ${produto.tamanho}px;
+                                ${produto.sem_fundo ? 'border: none;' + produto.cor_fonte + ';' : 'border: none;'}">
+                        ${produto.nome} - R$ ${produto.preco.toFixed(2)}
+                    </div>
+                `).join('');
+            }
+            
+            // Inicia a rotação
+            setInterval(rotateLayout, rotationTime);
+        });
+    </script>
+</body>
+</html>
